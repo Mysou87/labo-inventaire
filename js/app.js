@@ -324,9 +324,10 @@ async function ecranArticle(id) {
   if (a.commande_le) {
     html += `<div class="info">🛒 Commandé le ${dateCourte(a.commande_le)}.
       <div class="actions"><button class="btn principal" data-action="recu-article" data-id="${a.id}">📦 C'est arrivé</button>
-      ${estAdmin() ? `<button class="btn" data-action="annuler-commande" data-id="${a.id}">Annuler la commande</button>` : ''}</div></div>`;
+      <button class="btn" data-action="annuler-commande" data-id="${a.id}">Annuler la commande</button></div></div>`;
   } else if (b) {
-    html += `<div class="info">Sur la liste « À commander » (${esc(b.raison)}).</div>`;
+    html += `<div class="info">Sur la liste « À commander » (${esc(b.raison)}).
+      <div class="actions"><button class="btn" data-action="commander-article" data-id="${a.id}">🛒 Je l'ai commandé</button></div></div>`;
   }
 
   const infos = [];
@@ -451,7 +452,7 @@ function ecranCommandes() {
           <div class="detail"><span class="pastille ${b.raison.startsWith('Plus') ? 'p-vide' : `p-${a.etat}`}">${esc(b.raison)}</span>
             · à commander : ${b.quantite}${a.prix != null ? ` · ${euros(a.prix * b.quantite)}` : ''}${a.fournisseur ? ` · ${esc(a.fournisseur)}` : ''}</div></a>
         <div class="droite">${a.lien ? `<a class="btn petit" href="${esc(a.lien)}" target="_blank" rel="noopener">↗</a>` : ''}
-          ${estAdmin() ? `<button class="btn petit" data-action="commander-article" data-id="${a.id}">Commandé</button>` : ''}</div></div>`;
+          <button class="btn petit" data-action="commander-article" data-id="${a.id}">Commandé</button></div></div>`;
     }
     html += '</div>';
   }
@@ -481,8 +482,8 @@ function ligneDemande(d) {
   return `<div class="ligne"><div class="corps"><div class="nom">${esc(d.nom)}</div>
     <div class="detail">${DOMAINES[d.domaine]} · ${d.quantite} pièce${d.quantite > 1 ? 's' : ''}${d.prix != null ? ` · ${euros(d.prix * d.quantite)}` : ''}${d.fournisseur ? ` · ${esc(d.fournisseur)}` : ''}${d.pour ? ` · pour ${esc(d.pour)}` : ''}</div></div>
     <div class="droite">${d.lien ? `<a class="btn petit" href="${esc(d.lien)}" target="_blank" rel="noopener">↗</a>` : ''}
-      ${estAdmin() ? `<button class="btn petit" data-action="commander-demande" data-id="${d.id}">Commandé</button>
-      <button class="btn petit" data-action="abandonner-demande" data-id="${d.id}" title="Abandonner">✕</button>` : ''}</div></div>`;
+      <button class="btn petit" data-action="commander-demande" data-id="${d.id}">Commandé</button>
+      ${estAdmin() ? `<button class="btn petit" data-action="abandonner-demande" data-id="${d.id}" title="Abandonner">✕</button>` : ''}</div></div>`;
 }
 
 async function nouvelleDemande() {

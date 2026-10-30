@@ -12,6 +12,7 @@ Petite app web (téléphone d'abord) pour savoir ce qu'il y a au labo, signaler 
    1. `sql/01-structure.sql` (tables, droits, actions)
    2. `sql/02-donnees.sql` (inventaire 2022 + achats 2022-2026). ⚠️ Remet l'inventaire à zéro : ne plus le relancer ensuite.
    3. `sql/03-codes.sql` (codes d'accès)
+   (`sql/04-commandes-pour-tous.sql` est un correctif pour une base créée avant le 30/10/2026 au soir ; inutile sur une installation neuve.)
 2. GitHub Desktop → *File › Add local repository* → ce dossier → *Publish repository* (public, nom `labo-inventaire`).
 3. Sur github.com → dépôt → *Settings › Pages* → *Deploy from a branch* → `main` / racine.
 4. Ouvrir l'app, entrer le code admin, *Admin › QR codes* → imprimer et coller sur les armoires.
@@ -20,8 +21,8 @@ Petite app web (téléphone d'abord) pour savoir ce qu'il y a au labo, signaler 
 
 | Qui | Quoi |
 |---|---|
-| Tout le monde (code prof) | Scanner le QR d'une armoire ou chercher un produit → **Presque vide / Vide / Introuvable**, ou **casse** pour la verrerie et le matériel. Proposer un **nouvel achat**. Noter qu'une livraison est **arrivée**. Ajouter ou corriger un article. |
-| Administratrice (code admin) | Marquer une ligne comme **commandée**. **Commande annuelle** : *Admin › Générer Budget_AAAA.xlsx* (même format que les feuilles `Budget_AAAA` du fichier de commandes), puis *Marquer toute la liste comme commandée*. Emplacements, QR codes, retrait d'articles, journal. |
+| Tout le monde (code prof) | Scanner le QR d'une armoire ou chercher un produit → **Presque vide / Vide / Introuvable**, ou **casse** pour la verrerie et le matériel. Proposer un **nouvel achat**. Marquer une ligne comme **commandée**, noter qu'une livraison est **arrivée**. Ajouter ou corriger un article. |
+| Administratrice (code admin) | Abandonner une nouveauté proposée. **Commande annuelle** : *Admin › Générer Budget_AAAA.xlsx* (même format que les feuilles `Budget_AAAA` du fichier de commandes), puis *Marquer toute la liste comme commandée*. Emplacements, QR codes, retrait d'articles, journal. |
 
 Consulter l'inventaire ne demande aucun code.
 

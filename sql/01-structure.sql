@@ -173,8 +173,8 @@ returns labo_articles
 language plpgsql security definer set search_path = public as $$
 declare a labo_articles;
 begin
-  -- Passer commande : administratrice seulement. Réceptionner : tout le monde.
-  perform labo_exiger(p_code, p_action in ('commande','annule'));
+  -- Commander, annuler, réceptionner : tous les profs.
+  perform labo_exiger(p_code);
   if p_action = 'commande' then
     update labo_articles set commande_le = current_date where id = p_article;
   elsif p_action = 'annule' then
@@ -267,8 +267,8 @@ returns labo_demandes
 language plpgsql security definer set search_path = public as $$
 declare d labo_demandes; nouvel_id bigint := p_id;
 begin
-  -- Proposer et réceptionner : tout le monde. Le reste : administratrice.
-  perform labo_exiger(p_code, p_action not in ('creer','recu'));
+  -- Proposer, commander et réceptionner : tous les profs. Le reste : administratrice.
+  perform labo_exiger(p_code, p_action not in ('creer','commande','recu'));
   if p_action = 'creer' then
     insert into labo_demandes(nom, domaine, categorie, quantite, prix, fournisseur, lien, pour, par)
     values (p_data->>'nom', coalesce(p_data->>'domaine','chimie'),
