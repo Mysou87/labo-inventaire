@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="fr-BE">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Labo sciences</title>
+  <meta name="theme-color" content="#1f6f8b">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚗️</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <header class="barre">
+    <a href="#/" class="titre">⚗️ Labo sciences</a>
+    <button type="button" class="cle" data-action="code" id="bouton-code">🔑 Code</button>
+  </header>
+
+  <main id="app"><p class="chargement">Chargement de l'inventaire…</p></main>
+
+  <nav class="onglets" id="onglets">
+    <a href="#/" data-onglet="labo"><span>🔎</span>Labo</a>
+    <a href="#/commandes" data-onglet="commandes"><span>🛒</span>À commander<b id="compteur-commandes" hidden></b></a>
+    <a href="#/inventaire" data-onglet="inventaire"><span>📋</span>Inventaire</a>
+    <a href="#/admin" data-onglet="admin" id="onglet-admin" hidden><span>⚙️</span>Admin</a>
+  </nav>
+
+  <dialog id="dialogue"><form method="dialog" id="dialogue-contenu"></form></dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
