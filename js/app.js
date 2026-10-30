@@ -683,7 +683,7 @@ function exporterCommande(annee) {
     const items = renouv.filter(({ a }) => a.domaine === dom)
       .sort((x, y) => ORDRE_CATEGORIES.indexOf(x.a.categorie) - ORDRE_CATEGORIES.indexOf(y.a.categorie) || x.a.nom.localeCompare(y.a.nom, 'fr'));
     let sousTotal = 0;
-    const formule = (n, prix, q) => { const v = (prix ?? 0) * q; sousTotal += v; return { t: 'n', v, f: `B${n}*C${n}` }; };
+    const formule = (n, prix, q) => { const v = Math.round((prix ?? 0) * q * 100) / 100; sousTotal = Math.round((sousTotal + v) * 100) / 100; return { t: 'n', v, f: `B${n}*C${n}` }; };
     for (const { a, b } of items) {
       const n = lignes.length + 1;
       lignes.push([`${a.nom}${a.conditionnement ? ` (${a.conditionnement})` : ''}`, a.prix ?? '', b.quantite, formule(n, a.prix, b.quantite),
