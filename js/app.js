@@ -213,8 +213,31 @@ function remplacerDemande(d) {
   majCompteurCommandes();
 }
 
+// Nom de la personne qui signale ou demande : demandé une fois, retenu sur l'appareil.
+async function demanderNom() {
+  const r = await dialogue(`
+    <h3>Qui signale ?</h3>
+    <p class="sous">Pour savoir qui est à l'origine de la commande. Demandé une seule fois sur cet appareil.</p>
+    <label class="champ"><span>Ton nom</span><input name="nom" required value="${esc(lireStockage('labo_nom'))}" autofocus></label>
+    <div class="actions"><button class="btn principal" value="ok">Valider</button><button class="btn" value="annuler" formnovalidate>Annuler</button></div>`);
+  const nom = r?.nom?.trim() || '';
+  if (nom) ecrireStockage('labo_nom', nom);
+  return nom;
+}
+
+// Dernière personne ayant signalé chaque article (vide, presque vide, introuvable, casse).
+async function demandeurs(ids) {
+  const m = new Map();
+  if (!ids.length) return m;
+  const ev = await api(`labo_evenements?select=article_id,par&type=in.(presque_vide,vide,introuvable,casse)&par=not.is.null&article_id=in.(${ids.join(',')})&order=cree_le.desc`);
+  for (const e of ev) if (!m.has(e.article_id)) m.set(e.article_id, e.par);
+  return m;
+}
+
 async function signaler(id, type, quantite = null) {
-  const a = await ecrire('labo_signaler', { p_article: Number(id), p_type: type, p_quantite: quantite });
+  let par = lireStockage('labo_nom');
+  if (!par && ['presque_vide', 'vide', 'introuvable', 'casse'].includes(type)) { par = await demanderNom(); if (!par) return; }
+  const a = await ecrire('labo_signaler', { p_article: Number(id), p_type: type, p_quantite: quantite, p_par: par || null });
   if (!a) return;
   remplacerArticle(a);
   const b = besoin(a);
@@ -340,6 +363,8 @@ async function ecranArticle(id) {
   if (a.remarque) infos.push(esc(a.remarque));
   if (infos.length) html += `<div class="bloc">${infos.join('<br>')}</div>`;
 
+  const nom = lireStockage('labo_nom');
+  if (nom) html += `<p class="sous">Tu signales en tant que ${esc(nom)} · <a href="#" data-action="changer-nom">changer</a></p>`;
   html += `<div class="actions"><a class="btn" href="#/modifier/${a.id}">✏️ Modifier</a>
     ${estAdmin() ? `<button class="btn" data-action="retirer" data-id="${a.id}">🗑️ Retirer de l'inventaire</button>` : ''}</div>
     <h2>Historique</h2><div class="liste historique" id="historique"><p class="chargement">…</p></div>`;
@@ -349,7 +374,7 @@ async function ecranArticle(id) {
     const ev = await api(`labo_evenements?select=*&article_id=eq.${a.id}&order=cree_le.desc&limit=30`);
     const h = document.getElementById('historique');
     if (h) h.innerHTML = ev.length ? ev.map((e) => `<div class="ligne"><div class="corps">${esc(EVENEMENTS[e.type] || e.type)}${e.quantite != null ? ` (${e.quantite})` : ''}
-      ${e.note ? `<div class="detail">${esc(e.note)}</div>` : ''}</div><div class="droite detail">${dateCourte(e.cree_le)}</div></div>`).join('')
+      ${e.par || e.note ? `<div class="detail">${[e.par, e.note].filter(Boolean).map(esc).join(' · ')}</div>` : ''}</div><div class="droite detail">${dateCourte(e.cree_le)}</div></div>`).join('')
       : '<p class="vide-liste">Rien pour l\'instant.</p>';
   } catch { /* l'historique n'est pas indispensable */ }
 }
@@ -428,7 +453,7 @@ function listeACommander() {
   return S.articles.filter((a) => besoin(a) && !a.commande_le).map((a) => ({ a, b: besoin(a) }));
 }
 
-function ecranCommandes() {
+async function ecranCommandes() {
   const renouv = listeACommander();
   const nouveautes = S.demandes.filter((d) => d.statut === 'a_commander');
   const enCommandeA = S.articles.filter((a) => a.commande_le);
@@ -453,7 +478,7 @@ function ecranCommandes() {
       html += `<div class="ligne"><a class="corps" href="#/article/${a.id}" style="text-decoration:none;color:inherit">
           <div class="nom">${nomComplet(a)}</div>
           <div class="detail"><span class="pastille ${b.raison.startsWith('Plus') ? 'p-vide' : `p-${a.etat}`}">${esc(b.raison)}</span>
-            · à commander : ${b.quantite}${a.prix != null ? ` · ${euros(a.prix * b.quantite)}` : ''}${a.fournisseur ? ` · ${esc(a.fournisseur)}` : ''}</div></a>
+            · à commander : ${b.quantite}${a.prix != null ? ` · ${euros(a.prix * b.quantite)}` : ''}${a.fournisseur ? ` · ${esc(a.fournisseur)}` : ''}<span data-demandeur="${a.id}"></span></div></a>
         <div class="droite">${a.lien ? `<a class="btn petit" href="${esc(a.lien)}" target="_blank" rel="noopener">↗</a>` : ''}
           <button class="btn petit" data-action="commander-article" data-id="${a.id}">Commandé</button></div></div>`;
     }
@@ -468,7 +493,7 @@ function ecranCommandes() {
     html += '<h2>En commande · à réceptionner</h2><div class="liste">';
     for (const a of enCommandeA) {
       html += `<div class="ligne"><a class="corps" href="#/article/${a.id}" style="text-decoration:none;color:inherit"><div class="nom">${nomComplet(a)}</div>
-        <div class="detail">Commandé le ${dateCourte(a.commande_le)}</div></a>
+        <div class="detail">Commandé le ${dateCourte(a.commande_le)}<span data-demandeur="${a.id}"></span></div></a>
         <div class="droite"><button class="btn petit principal" data-action="recu-article" data-id="${a.id}">📦 Arrivé</button></div></div>`;
     }
     for (const d of enCommandeD) {
@@ -479,6 +504,10 @@ function ecranCommandes() {
     html += '</div>';
   }
   app().innerHTML = html;
+  try {
+    const m = await demandeurs([...renouv.map(({ a }) => a.id), ...enCommandeA.map((a) => a.id)]);
+    document.querySelectorAll('[data-demandeur]').forEach((s) => { const p = m.get(Number(s.dataset.demandeur)); if (p) s.textContent = ` · signalé par ${p}`; });
+  } catch { /* facultatif */ }
 }
 
 function ligneDemande(d) {
@@ -630,7 +659,7 @@ async function ecranAdmin() {
     const ev = await api('labo_evenements?select=*&type=neq.import&order=cree_le.desc&limit=60');
     const j = document.getElementById('journal');
     if (j) j.innerHTML = ev.map((e) => { const a = S.articles.find((x) => x.id === e.article_id); return `<a class="ligne" href="#/article/${e.article_id}"><div class="corps">
-      <div class="nom">${a ? nomComplet(a) : 'Article retiré'}</div><div class="detail">${esc(EVENEMENTS[e.type] || e.type)}${e.quantite != null ? ` (${e.quantite})` : ''}${e.note ? ` · ${esc(e.note)}` : ''}</div></div>
+      <div class="nom">${a ? nomComplet(a) : 'Article retiré'}</div><div class="detail">${esc(EVENEMENTS[e.type] || e.type)}${e.quantite != null ? ` (${e.quantite})` : ''}${e.par ? ` · ${esc(e.par)}` : ''}${e.note ? ` · ${esc(e.note)}` : ''}</div></div>
       <div class="droite detail">${dateCourte(e.cree_le)}</div></a>`; }).join('') || '<p class="vide-liste">Rien encore.</p>';
   } catch { /* facultatif */ }
 }
@@ -672,8 +701,10 @@ function ecranQR() {
 }
 
 // Fichier Excel au format des feuilles « Budget_AAAA » du fichier de commandes.
-function exporterCommande(annee) {
+async function exporterCommande(annee) {
   if (!window.XLSX) { toast('Bibliothèque Excel pas encore chargée, réessaie.'); return; }
+  let qui = new Map();
+  try { qui = await demandeurs(listeACommander().map(({ a }) => a.id)); } catch { /* facultatif */ }
   const lignes = [
     ['Dénomination', 'Prix Unitaire', `Commande Été ${annee}`, '', '', '', '', '', '', 'Remarques', 'Responsable', 'Site de commande'],
     ['', '', 'Quantité', 'Coût total'],
@@ -694,7 +725,7 @@ function exporterCommande(annee) {
     for (const { a, b } of items) {
       const n = lignes.length + 1;
       lignes.push([`${a.nom}${a.conditionnement ? ` (${a.conditionnement})` : ''}`, a.prix ?? '', b.quantite, formule(n, a.prix, b.quantite),
-        '', '', '', '', '', `Renouvellement : ${b.raison.toLowerCase()}`, '', a.lien || a.fournisseur || '']);
+        '', '', '', '', '', `Renouvellement : ${b.raison.toLowerCase()}${qui.get(a.id) ? ` · signalé par ${qui.get(a.id)}` : ''}`, '', a.lien || a.fournisseur || '']);
     }
     for (const d of nouveautes.filter((x) => x.domaine === dom)) {
       const n = lignes.length + 1;
@@ -751,6 +782,7 @@ document.addEventListener('click', async (ev) => {
       case 'casse': await signaler(id, 'casse', Math.max(1, Number(document.getElementById('nb-casse').value) || 1)); break;
       case 'recompter': await signaler(id, 'comptage', Number(document.getElementById('nb-compte').value)); break;
       case 'nouvelle-demande': await nouvelleDemande(); break;
+      case 'changer-nom': if (await demanderNom()) route({ garderScroll: true }); break;
       case 'commander-article': {
         const r = await ecrire('labo_commande', { p_article: Number(id), p_action: 'commande' });
         if (r) { remplacerArticle(r); toast('Marqué comme commandé.'); route(); } break;
@@ -772,7 +804,7 @@ document.addEventListener('click', async (ev) => {
         }
         break;
       case 'modifier-lieu': await modifierLieu(id); break;
-      case 'exporter': exporterCommande(Number(document.getElementById('annee-commande').value)); break;
+      case 'exporter': await exporterCommande(Number(document.getElementById('annee-commande').value)); break;
       case 'tout-commander': await toutCommander(); break;
       case 'voir-verifier': Object.assign(S.filtres, { domaine: '', categorie: '', etat: 'verifier', texte: '' }); location.hash = '#/inventaire'; break;
       default: break;
