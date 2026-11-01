@@ -140,7 +140,8 @@ a.carte:active { transform: scale(.99); }
 .bloc { background: var(--carte); border: 1px solid var(--bord); border-radius: var(--rayon); padding: 14px; margin: 12px 0; box-shadow: var(--ombre); }
 .compteur { display: flex; align-items: center; gap: 8px; }
 .compteur input { width: 80px; text-align: center; font-size: 1.1rem; padding: 8px; border: 1px solid var(--bord); border-radius: 8px; background: var(--fond); }
-.compteur button { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--bord); background: var(--fond); font-size: 1.3rem; cursor: pointer; }
+.compteur { flex-wrap: wrap; }
+.compteur button:not(.btn) { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--bord); background: var(--fond); font-size: 1.3rem; cursor: pointer; }
 .grand-nombre { font-size: 2rem; font-weight: 700; }
 
 .tournee { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
