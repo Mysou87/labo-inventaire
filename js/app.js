@@ -332,7 +332,7 @@ async function ecranArticle(id) {
     <h1>${esc(a.nom)}</h1>
     <p class="sous">${[a.formule, a.conditionnement].filter(Boolean).map(esc).join(' · ')}<br>
       📍 ${l ? `${esc(l.salle)} · ${esc(l.nom)}` : 'Emplacement à préciser'}${a.precision_lieu ? ` · ${esc(a.precision_lieu)}` : ''}</p>
-    <div>${pastilles(a)}</div>`;
+    <div>${pastilles(a)}</div><p class="sous" id="dernier-achat"></p>`;
 
   if (a.suivi === 'etat') {
     html += '<div class="etats">' + Object.entries(ETATS).map(([k, v]) =>
@@ -372,6 +372,9 @@ async function ecranArticle(id) {
 
   try {
     const ev = await api(`labo_evenements?select=*&article_id=eq.${a.id}&order=cree_le.desc&limit=30`);
+    const achat = ev.find((e) => e.type === 'recu');
+    const da = document.getElementById('dernier-achat');
+    if (da && achat) da.textContent = `🧾 Dernier achat : ${new Date(achat.cree_le).toLocaleDateString('fr-BE', { month: 'long', year: 'numeric' })}${achat.par ? ` · ${achat.par}` : ''}`;
     const h = document.getElementById('historique');
     if (h) h.innerHTML = ev.length ? ev.map((e) => `<div class="ligne"><div class="corps">${esc(EVENEMENTS[e.type] || e.type)}${e.quantite != null ? ` (${e.quantite})` : ''}
       ${e.par || e.note ? `<div class="detail">${[e.par, e.note].filter(Boolean).map(esc).join(' · ')}</div>` : ''}</div><div class="droite detail">${dateCourte(e.cree_le)}</div></div>`).join('')
@@ -853,3 +856,5 @@ document.addEventListener('visibilitychange', async () => {
     app().innerHTML = `<p class="vide-liste">Impossible de charger l'inventaire.<br><small>${esc(e.message)}</small></p>`;
   }
 })();
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { /* pas indispensable */ });
