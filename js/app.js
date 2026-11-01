@@ -250,6 +250,7 @@ function ecranLabo() {
       }
       html += '</div>';
     }
+    if (estAdmin()) html += '<div class="actions" style="margin-top:16px"><button class="btn" data-action="modifier-lieu">＋ Ajouter un nouvel emplacement</button></div>';
   }
   app().innerHTML = html;
   const champ = document.getElementById('recherche');
@@ -649,7 +650,7 @@ async function modifierLieu(id) {
     const i = S.lieux.findIndex((x) => x.id === r.id);
     if (i >= 0) S.lieux[i] = r; else S.lieux.push(r);
     S.lieux.sort((x, y) => x.ordre - y.ordre);
-    toast('Emplacement enregistré.'); ecranAdmin();
+    toast('Emplacement enregistré.'); route({ garderScroll: true });
   }
 }
 
