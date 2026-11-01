@@ -92,4 +92,13 @@ update labo_evenements set par = 'Manon' where id = 353 and par = 'Budget labo';
 update labo_evenements set par = 'Manon' where id = 355 and par = 'Budget labo';  -- 2026 · Accessoire galvanomètre
 update labo_evenements set par = 'Laureline' where id = 357 and par = 'Budget labo';  -- 2026 · Fibre optique (5 m)
 update labo_evenements set par = 'Laureline' where id = 359 and par = 'Budget labo';  -- 2026 · Pointeur laser
+
+-- Précisions de Laureline (01/11/2026).
+update labo_evenements set par = 'Mélanie' where id = 108 and par = 'Budget labo';  -- 2023 · Eau déminéralisée
+update labo_evenements set par = 'Laureline' where id = 227 and par = 'Budget labo';  -- 2022 · Kit Snatoms
+-- Kit Snatoms : à Laureline (pas remboursé par l'école), retiré de l'inventaire.
+insert into labo_evenements(article_id, type, par, note)
+  select 183, 'retrait', 'Laureline', 'Kit personnel de Laureline, non remboursé par l''école'
+   where exists (select 1 from labo_articles where id = 183 and actif);
+update labo_articles set actif = false, maj_le = now(), maj_par = 'Laureline' where id = 183;
 commit;
