@@ -22,6 +22,7 @@
   - Écrans : `ecranLabo` (recherche + emplacements), `ecranLieu` (+ mode tournée `ligneTournee`), `ecranArticle`, `ecranFormulaire` (ajout/modif), `ecranCommandes`, `ecranInventaire`, `ecranAdmin`, `ecranQR`.
   - `exporterCommande(annee)` : xlsx au format des feuilles `Budget_AAAA` (colonnes A Dénomination, B Prix, C Quantité, D Coût total, J Remarques, K Responsable, L Site ; blocs Biologie / Physique / Chimie / Commun ; formules + valeurs arrondies au centime).
   - Clics : délégation unique sur `[data-action]`. Routeur par hash : `#/`, `#/lieu/<id>`, `#/article/<id>`, `#/modifier/<id>`, `#/ajouter[/<lieu>]`, `#/commandes`, `#/inventaire`, `#/admin`, `#/qr`. L'onglet « À ranger » pointe simplement vers `#/lieu/xx` (emplacement « À ranger »), avec un compteur mis à jour dans `majCompteurCommandes()`.
+  - Nom de la personne (01/11/2026) : demandé une fois (`demanderNom`, stocké en `localStorage.labo_nom`), envoyé en `p_par` pour les signalements et les nouveautés. « Signalé par » dans À commander et l'export = dernier événement vide/presque_vide/introuvable/casse avec `par` (`demandeurs()`). Les anciens achats ont leur « Responsable » des feuilles Budget (`sql/06`).
   - Code d'accès et rôle mémorisés en `localStorage` (`labo_code`, `labo_role`).
 - `css/style.css` : couleurs en variables `:root`, mode sombre automatique, impression des QR.
 - `sql/01-structure.sql` : tables, RLS, fonctions. **Relançable sans danger** (`create if not exists`, `create or replace`).
