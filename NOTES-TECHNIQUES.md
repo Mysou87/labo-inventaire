@@ -47,7 +47,8 @@ Tables : `labo_lieux` (id texte = celui du QR), `labo_articles`, `labo_evenement
 | `labo_commande` (commande, annule, recu) | ✓ (depuis le 30/10/2026) | |
 | `labo_article_enregistrer` (créer / modifier) | ✓ | |
 | `labo_demande` | creer, commande, recu | modifier, abandonne, rouvrir |
-| `labo_article_retirer`, `labo_lieu_enregistrer` | | ✓ |
+| `labo_lieu_enregistrer` | créer (depuis le 01/11/2026, `sql/05`) | modifier un existant |
+| `labo_article_retirer` | | ✓ |
 
 ## Comment modifier
 

@@ -250,7 +250,7 @@ function ecranLabo() {
       }
       html += '</div>';
     }
-    if (estAdmin()) html += '<div class="actions" style="margin-top:16px"><button class="btn" data-action="modifier-lieu">＋ Ajouter un nouvel emplacement</button></div>';
+    html += '<div class="actions" style="margin-top:16px"><button class="btn" data-action="modifier-lieu">＋ Ajouter un nouvel emplacement</button></div>';
   }
   app().innerHTML = html;
   const champ = document.getElementById('recherche');

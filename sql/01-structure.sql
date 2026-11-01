@@ -304,14 +304,14 @@ begin
   return d;
 end $$;
 
--- Emplacements (réservé à l'administratrice).
+-- Emplacements : tous les profs en créent ; modifier un existant = administratrice.
 create or replace function labo_lieu_enregistrer(p_code text, p_id text, p_salle text, p_nom text,
                                                  p_details text default null, p_ordre int default 0)
 returns labo_lieux
 language plpgsql security definer set search_path = public as $$
 declare l labo_lieux;
 begin
-  perform labo_exiger(p_code, true);
+  perform labo_exiger(p_code, exists (select 1 from labo_lieux where id = p_id));
   insert into labo_lieux(id, salle, nom, details, ordre)
        values (p_id, p_salle, p_nom, p_details, p_ordre)
   on conflict (id) do update
