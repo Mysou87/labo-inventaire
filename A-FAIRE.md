@@ -12,6 +12,10 @@ Idées validées par Laureline le 01/11/2026, mises de côté parce qu'elles dem
   - Biologie : 195 Fehling A, 196 Fehling B, 197 lugol, 203 huile, 206 kit molécules du vivant, 207 kit groupes sanguins.
   - Consommables : 96 bandelettes pH, 95 papier pH, 93 gants latex, 92 gants nitrile.
 
+## Source pour les points 2 et 3
+
+`C:\Users\lvano\Desktop\Ecole Active\Labo Chimie\Règles\2018-03-27 liste produits interdits.pdf` (dossier Ecole Active = lecture seule). À lire en premier, avant toute autre source.
+
 ## 2. Qui peut manipuler chaque produit (point 7)
 
 - Ce qui compte pour Laureline : prof seulement, ou élèves de quelle année et de quelle option.
