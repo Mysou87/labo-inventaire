@@ -21,7 +21,7 @@
   - `besoin(a)` : **règle de rachat** (nombre < seuil → cible − quantité ; état vide / presque vide / introuvable → 1).
   - Écrans : `ecranLabo` (recherche + emplacements), `ecranLieu` (+ mode tournée `ligneTournee`), `ecranArticle`, `ecranFormulaire` (ajout/modif), `ecranCommandes`, `ecranInventaire`, `ecranAdmin`, `ecranQR`.
   - `exporterCommande(annee)` : xlsx au format des feuilles `Budget_AAAA` (colonnes A Dénomination, B Prix, C Quantité, D Coût total, J Remarques, K Responsable, L Site ; blocs Biologie / Physique / Chimie / Commun ; formules + valeurs arrondies au centime).
-  - Clics : délégation unique sur `[data-action]`. Routeur par hash : `#/`, `#/lieu/<id>`, `#/article/<id>`, `#/modifier/<id>`, `#/ajouter[/<lieu>]`, `#/commandes`, `#/inventaire`, `#/admin`, `#/qr`.
+  - Clics : délégation unique sur `[data-action]`. Routeur par hash : `#/`, `#/lieu/<id>`, `#/article/<id>`, `#/modifier/<id>`, `#/ajouter[/<lieu>]`, `#/commandes`, `#/inventaire`, `#/admin`, `#/qr`. L'onglet « À ranger » pointe simplement vers `#/lieu/xx` (emplacement « À ranger »), avec un compteur mis à jour dans `majCompteurCommandes()`.
   - Code d'accès et rôle mémorisés en `localStorage` (`labo_code`, `labo_role`).
 - `css/style.css` : couleurs en variables `:root`, mode sombre automatique, impression des QR.
 - `sql/01-structure.sql` : tables, RLS, fonctions. **Relançable sans danger** (`create if not exists`, `create or replace`).

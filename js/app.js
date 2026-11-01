@@ -129,6 +129,8 @@ function majCompteurCommandes() {
     + S.demandes.filter((d) => d.statut === 'a_commander').length;
   const b = document.getElementById('compteur-commandes');
   b.textContent = n; b.hidden = n === 0;
+  const r = document.getElementById('compteur-ranger');
+  r.textContent = S.articles.filter((a) => a.lieu_id === 'xx').length; r.hidden = r.textContent === '0';
   document.getElementById('onglet-admin').hidden = !estAdmin();
   document.getElementById('bouton-code').textContent = S.role ? (estAdmin() ? '🔓 Admin' : '🔓 Prof') : '🔑 Code';
 }
@@ -781,7 +783,7 @@ function route({ garderScroll = false } = {}) {
   const y = window.scrollY;
   const [, ecran = '', param = ''] = (location.hash || '#/').split('/');
   const p = decodeURIComponent(param);
-  const onglet = { '': 'labo', lieu: 'labo', article: 'labo', commandes: 'commandes', inventaire: 'inventaire', admin: 'admin', qr: 'admin' }[ecran];
+  const onglet = ecran === 'lieu' && p === 'xx' ? 'ranger' : { '': 'labo', lieu: 'labo', article: 'labo', commandes: 'commandes', inventaire: 'inventaire', admin: 'admin', qr: 'admin' }[ecran];
   document.querySelectorAll('.onglets a').forEach((a) => a.classList.toggle('actif', a.dataset.onglet === onglet));
   if (ecran !== 'lieu') S.tournee = false;
   switch (ecran) {
