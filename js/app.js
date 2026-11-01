@@ -473,7 +473,7 @@ function ecranCommandes() {
     }
     for (const d of enCommandeD) {
       html += `<div class="ligne"><div class="corps"><div class="nom">${esc(d.nom)} <span class="pastille p-commande">nouveau</span></div>
-        <div class="detail">${d.quantite} · commandé le ${dateCourte(d.commande_le)}</div></div>
+        <div class="detail">${d.quantite} · commandé le ${dateCourte(d.commande_le)}${d.par ? ` · demandé par ${esc(d.par)}` : ''}</div></div>
         <div class="droite"><button class="btn petit principal" data-action="recu-demande" data-id="${d.id}">📦 Arrivé</button></div></div>`;
     }
     html += '</div>';
@@ -483,7 +483,7 @@ function ecranCommandes() {
 
 function ligneDemande(d) {
   return `<div class="ligne"><div class="corps"><div class="nom">${esc(d.nom)}</div>
-    <div class="detail">${DOMAINES[d.domaine]} · ${d.quantite} pièce${d.quantite > 1 ? 's' : ''}${d.prix != null ? ` · ${euros(d.prix * d.quantite)}` : ''}${d.fournisseur ? ` · ${esc(d.fournisseur)}` : ''}${d.pour ? ` · pour ${esc(d.pour)}` : ''}</div></div>
+    <div class="detail">${DOMAINES[d.domaine]} · ${d.quantite} pièce${d.quantite > 1 ? 's' : ''}${d.prix != null ? ` · ${euros(d.prix * d.quantite)}` : ''}${d.fournisseur ? ` · ${esc(d.fournisseur)}` : ''}${d.pour ? ` · pour ${esc(d.pour)}` : ''}${d.par ? ` · demandé par ${esc(d.par)}` : ''}</div></div>
     <div class="droite">${d.lien ? `<a class="btn petit" href="${esc(d.lien)}" target="_blank" rel="noopener">↗</a>` : ''}
       <button class="btn petit" data-action="commander-demande" data-id="${d.id}">Commandé</button>
       ${estAdmin() ? `<button class="btn petit" data-action="abandonner-demande" data-id="${d.id}" title="Abandonner">✕</button>` : ''}</div></div>`;
@@ -506,12 +506,15 @@ async function nouvelleDemande() {
     <label class="champ"><span>Fournisseur</span><input name="fournisseur" placeholder="Sordalab, Conatex, Equascience…"></label>
     <label class="champ"><span>Lien</span><input name="lien" type="url"></label>
     <label class="champ"><span>Pour quel cours / quel labo ?</span><input name="pour" placeholder="5e chimie, mission chaufferettes…"></label>
+    <label class="champ"><span>Qui fait la demande ? *</span><input name="par" required value="${esc(lireStockage('labo_nom'))}" placeholder="Ton nom"></label>
     <p class="erreur"></p>
     <div class="actions"><button class="btn principal" value="ok">Ajouter à la liste</button><button class="btn" value="annuler" formnovalidate>Annuler</button></div>`, {
     surValider: async (d) => {
       d.quantite = Number(d.quantite) || 1;
       d.prix = d.prix === '' ? null : Number(d.prix);
-      const r = await ecrire('labo_demande', { p_action: 'creer', p_data: d });
+      const par = d.par.trim(); delete d.par;
+      ecrireStockage('labo_nom', par);
+      const r = await ecrire('labo_demande', { p_action: 'creer', p_data: d, p_par: par });
       if (r) { remplacerDemande(r); toast('Ajouté à la liste.'); ecranCommandes(); }
       return r;
     },
@@ -696,7 +699,7 @@ function exporterCommande(annee) {
     for (const d of nouveautes.filter((x) => x.domaine === dom)) {
       const n = lignes.length + 1;
       lignes.push([d.nom, d.prix ?? '', d.quantite, formule(n, d.prix, d.quantite), '', '', '', '', '',
-        `Nouveau${d.pour ? ` · ${d.pour}` : ''}`, '', d.lien || d.fournisseur || '']);
+        `Nouveau${d.pour ? ` · ${d.pour}` : ''}${d.par ? ` · demandé par ${d.par}` : ''}`, '', d.lien || d.fournisseur || '']);
     }
     const fin = lignes.length;
     const n = lignes.length + 1;
